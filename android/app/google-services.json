@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "424132177009",
+    "project_id": "telegraph-cbe5c",
+    "storage_bucket": "telegraph-cbe5c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:424132177009:android:954dc72a3d0d7355ad7fd0",
+        "android_client_info": {
+          "package_name": "com.example.chat"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "424132177009-99vp2fvve8cug791rnc0col8nodn80va.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBaI22WATZGhPhjGE3RxYARqa655gaPEoU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "424132177009-99vp2fvve8cug791rnc0col8nodn80va.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "424132177009-2s0oi26lgo3ulccdmjhg29rrdi33o13g.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.chat"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
