@@ -14,7 +14,7 @@ import 'views/pages/age_verification_page.dart';
 import 'views/pages/auth_page.dart';
 import 'views/pages/pin_lock_page.dart';
 import 'views/pages/glitch_page.dart';
-
+import 'services/sync_service.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
@@ -23,7 +23,9 @@ void main() async {
   );
   
   await ConfigService.initialize();
-  
+    await ConfigService.initialize();
+  await NotificationService.initialize();
+    SyncService().initialize();
   // Инициализация уведомлений
   await NotificationService.initialize();
 

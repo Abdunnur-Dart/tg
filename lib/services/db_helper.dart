@@ -31,6 +31,49 @@ class DBHelper {
     return key;
   }
 
+
+
+
+// Добавьте метод для получения последнего сообщения в чате
+static Future<MessageModel?> getLastMessage(String roomId) async {
+  if (kIsWeb) return null;
+  try {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      'messages',
+      where: 'room_id = ?',
+      whereArgs: [roomId],
+      orderBy: 'created_at DESC',
+      limit: 1,
+    );
+    if (maps.isEmpty) return null;
+    return MessageModel.fromMap(maps.first);
+  } catch (e) {
+    debugPrint("DB Read Error: $e");
+    return null;
+  }
+}
+
+// Добавьте метод для подсчета непрочитанных сообщений
+static Future<int> getUnreadCount(String roomId, DateTime lastRead) async {
+  if (kIsWeb) return 0;
+  try {
+    final db = await database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      'messages',
+      where: 'room_id = ? AND created_at > ?',
+      whereArgs: [roomId, lastRead.toIso8601String()],
+    );
+    return maps.length;
+  } catch (e) {
+    debugPrint("DB Read Error: $e");
+    return 0;
+  }
+}
+
+
+
+
   static Future<sql.Database> get database async {
     if (_db != null) return _db!;
 

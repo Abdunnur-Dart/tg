@@ -175,6 +175,31 @@ void _showInviteDialog(BuildContext context, ChatViewModel vm) {
           ],
         ),
         actions: [
+          
+ Consumer<ChatViewModel>(
+    builder: (context, vm, _) {
+      return Container(
+        margin: const EdgeInsets.only(right: 8),
+        child: Row(
+          children: [
+            Icon(
+              vm.isOnline ? Icons.wifi : Icons.wifi_off,
+              color: vm.isOnline ? Colors.greenAccent : Colors.redAccent,
+              size: 18,
+            ),
+            if (!vm.isOnline) ...[
+              const SizedBox(width: 4),
+              const Text(
+                "Оффлайн",
+                style: TextStyle(color: Colors.white54, fontSize: 12),
+              ),
+            ],
+          ],
+        ),
+      );
+    },
+  ),
+
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: const Text("ЗАКРЫТЬ"),

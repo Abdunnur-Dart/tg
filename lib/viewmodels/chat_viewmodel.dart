@@ -13,8 +13,11 @@ import 'app_config_viewmodel.dart';
 import 'package:flutter/foundation.dart';
 import '../models/chat_model.dart';
 import '../services/fcm_v1_service.dart';
+import '../services/sync_service.dart';
 
 class ChatViewModel with ChangeNotifier {
+  bool get isOnline => _syncService.isOnline;
+  late final SyncService _syncService;
   final String roomId;
   final AppConfigViewModel conf;
   final _firebase = FirebaseService();
@@ -35,6 +38,7 @@ class ChatViewModel with ChangeNotifier {
   // ==================== ИНИЦИАЛИЗАЦИЯ ====================
   
   void _initViewModel() async {
+      _syncService = SyncService();
     final roomPassword = conf.roomPasswords[roomId] ?? "";
     
     // Загружаем информацию о чате (кто администратор)
@@ -721,35 +725,28 @@ Future<void> sendMessage(String text) async {
   if (text.trim().isEmpty) return;
 
   final String roomPassword = conf.roomPasswords[roomId] ?? "";
-  final String rKey = conf.hashRoomKey(roomId, roomPassword);
   
   try {
-    final String encrypted = EncryptionService.encrypt(text, roomPassword, roomId);
-    
-    final messageData = {
-      'id': DateTime.now().millisecondsSinceEpoch.toString(),
-      'room_id': rKey,
-      'content': encrypted,
-      'username': conf.nickname,
-      'user_id': conf.userId,
-      'created_at': DateTime.now().toIso8601String(),
-      'is_image': 0,
-    };
-
-    await _firebase.sendMessage(messageData);
-    
-    // ✨ ОТПРАВКА УВЕДОМЛЕНИЙ
-    // Исправлено: убрал widget., так как в ViewModel нет widget
-    // Нужно передать название чата отдельно
-    final String chatTitle = await _getChatTitle();
-    
-    await _fcmSender.sendToChatParticipants(
-      chatId: roomId,
-      senderId: conf.userId,
-      senderName: conf.nickname,
-      messageText: text,
-      chatTitle: chatTitle,
+    // Отправляем через оффлайн-сервис
+    await _syncService.sendMessageOffline(
+      roomId: roomId,
+      content: text,
+      username: conf.nickname,
+      userId: conf.userId,
+      roomPassword: roomPassword,
     );
+    
+    // Уведомления отправляем только если онлайн
+    if (await _syncService.isOnline) {
+      final chatTitle = await _getChatTitle();
+      await _fcmSender.sendToChatParticipants(
+        chatId: roomId,
+        senderId: conf.userId,
+        senderName: conf.nickname,
+        messageText: text,
+        chatTitle: chatTitle,
+      );
+    }
     
   } catch (e) {
     debugPrint("Ошибка отправки: $e");
