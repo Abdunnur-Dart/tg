@@ -26,6 +26,28 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	
+	<!-- ========== РАЗРЕШЕНИЯ ДЛЯ КАМЕРЫ И МИКРОФОНА (WebRTC) ========== -->
+	<key>NSCameraUsageDescription</key>
+	<string>Доступ к камере нужен для видеозвонков в чатах</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Доступ к микрофону нужен для аудио- и видеозвонков</string>
+	
+	<!-- ========== НАСТРОЙКИ FIREBASE PUSH УВЕДОМЛЕНИЙ ========== -->
+	<key>FirebaseAppDelegateProxyEnabled</key>
+	<false/>
+	<key>FirebaseMessagingAutoInitEnabled</key>
+	<true/>
+	
+	<!-- ========== ФОНОВЫЕ РЕЖИМЫ ========== -->
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>audio</string>
+		<string>fetch</string>
+		<string>remote-notification</string>
+	</array>
+	
+	<!-- ========== ОСТАЛЬНЫЕ СТАНДАРТНЫЕ НАСТРОЙКИ ========== -->
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
