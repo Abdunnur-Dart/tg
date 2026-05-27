@@ -24,9 +24,15 @@ jobs:
       - name: 🐦 Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.27.0'   # Dart 3.6.0, совместим с обоими пакетами
+          flutter-version: '3.27.0'   # Dart 3.6.0, совместим со всеми пакетами
           channel: 'stable'
           cache: true
+
+      - name: 🧹 Remove old Android folder (v1 embedding)
+        run: rm -rf android
+
+      - name: 🏗️ Recreate Android project (v2 embedding)
+        run: flutter create --platforms=android .
 
       - name: 📦 Install dependencies
         run: flutter pub get
