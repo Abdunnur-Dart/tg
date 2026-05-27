@@ -28,27 +28,19 @@ jobs:
           channel: 'stable'
           cache: true
 
-      - name: 🧹 Remove old Android folder
+      - name: 🧹 Clean previous builds
+        run: flutter clean
+
+      - name: 🧹 Remove old Android folder (v1 embedding)
         run: rm -rf android
 
-      - name: 🏗️ Recreate Android project
+      - name: 🏗️ Recreate Android project (v2 embedding)
         run: flutter create --platforms=android .
 
-      - name: 🔧 Patch build.gradle (compileSdk 36, minSdk 24)
+      - name: 🔧 Patch build.gradle (compileSdk 36)
         run: |
           sed -i 's/compileSdk = 35/compileSdk = 36/g' android/app/build.gradle
           sed -i 's/compileSdkVersion 35/compileSdkVersion 36/g' android/app/build.gradle
-          sed -i 's/minSdk = .*/minSdk = 24/g' android/app/build.gradle
-          sed -i 's/minSdkVersion .*/minSdkVersion 24/g' android/app/build.gradle
-
-      - name: 📦 Update flutter_webrtc to 1.10.0
-        run: |
-          # Удаляем старую версию
-          flutter pub remove flutter_webrtc || true
-          # Добавляем новую
-          flutter pub add flutter_webrtc:1.10.0
-          # Проверяем, что установилось
-          flutter pub deps | grep flutter_webrtc
 
       - name: 📦 Install dependencies
         run: flutter pub get
