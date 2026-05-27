@@ -41,18 +41,14 @@ jobs:
           sed -i 's/minSdk = .*/minSdk = 24/g' android/app/build.gradle
           sed -i 's/minSdkVersion .*/minSdkVersion 24/g' android/app/build.gradle
 
-      - name: 🩹 Patch flutter_webrtc compilation error (remove broken file)
+      - name: 📦 Update flutter_webrtc to 1.10.0
         run: |
-          # Находим путь к проблемному файлу
-          WEBCACHE_PATH="$HOME/.pub-cache/hosted/pub.dev/flutter_webrtc-1.4.1/android/src/main/java/com/cloudwebrtc/webrtc/SurfaceTextureRenderer.java"
-          if [ -f "$WEBCACHE_PATH" ]; then
-            # Удаляем строки 115-125 (содержащие проблемный Callback)
-            sed -i '115,125d' "$WEBCACHE_PATH"
-            echo "✅ Patched SurfaceTextureRenderer.java"
-          else
-            echo "⚠️ File not found, trying alternative path"
-            find ~/.pub-cache -name "SurfaceTextureRenderer.java" -exec sed -i '115,125d' {} \;
-          fi
+          # Удаляем старую версию
+          flutter pub remove flutter_webrtc || true
+          # Добавляем новую
+          flutter pub add flutter_webrtc:1.10.0
+          # Проверяем, что установилось
+          flutter pub deps | grep flutter_webrtc
 
       - name: 📦 Install dependencies
         run: flutter pub get
