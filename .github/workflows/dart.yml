@@ -28,7 +28,7 @@ jobs:
           channel: 'stable'
           cache: true
 
-      # Удаляем старую android-папку (v1 embedding)
+      # Удаляем старую android папку (v1 embedding)
       - name: 🧹 Remove old Android folder
         run: rm -rf android
 
@@ -42,14 +42,15 @@ jobs:
           sed -i 's/compileSdk = 35/compileSdk = 36/g' android/app/build.gradle
           sed -i 's/compileSdkVersion 35/compileSdkVersion 36/g' android/app/build.gradle
 
-      # Обновляем flutter_webrtc до совместимой версии (>=1.11.0)
-      - name: 📦 Update flutter_webrtc version
+      # Обновляем flutter_webrtc до версии, совместимой с Android API 36
+      - name: 📦 Update flutter_webrtc to 1.11.0
         run: |
-          sed -i 's/flutter_webrtc: ^1.4.1/flutter_webrtc: ^1.12.0/g' pubspec.yaml
-          # Если строка не найдена – добавляем явно (на случай другого формата)
-          grep -q "flutter_webrtc:" pubspec.yaml || echo "  flutter_webrtc: ^1.12.0" >> pubspec.yaml
+          # Заменяем версию в pubspec.yaml
+          sed -i 's/flutter_webrtc: ^1.4.1/flutter_webrtc: ^1.11.0/g' pubspec.yaml
+          # Дополнительно выполняем flutter pub add для гарантии
+          flutter pub add flutter_webrtc:^1.11.0
 
-      # Заново устанавливаем зависимости
+      # Устанавливаем зависимости
       - name: 📦 Install dependencies
         run: flutter pub get
 
