@@ -28,37 +28,26 @@ jobs:
           channel: 'stable'
           cache: true
 
-      # Удаляем старую android папку (v1 embedding)
-      - name: 🧹 Remove old Android folder
+      - name: 🧹 Clean previous builds
+        run: flutter clean
+
+      - name: 🧹 Remove old Android folder (v1 embedding)
         run: rm -rf android
 
-      # Пересоздаём Android проект (v2 embedding)
-      - name: 🏗️ Recreate Android project
+      - name: 🏗️ Recreate Android project (v2 embedding)
         run: flutter create --platforms=android .
 
-      # Обновляем compileSdk до 36 (требуют camera_android и flutter_webrtc)
       - name: 🔧 Patch build.gradle (compileSdk 36)
         run: |
           sed -i 's/compileSdk = 35/compileSdk = 36/g' android/app/build.gradle
           sed -i 's/compileSdkVersion 35/compileSdkVersion 36/g' android/app/build.gradle
 
-      # Обновляем flutter_webrtc до версии, совместимой с Android API 36
-      - name: 📦 Update flutter_webrtc to 1.11.0
-        run: |
-          # Заменяем версию в pubspec.yaml
-          sed -i 's/flutter_webrtc: ^1.4.1/flutter_webrtc: ^1.11.0/g' pubspec.yaml
-          # Дополнительно выполняем flutter pub add для гарантии
-          flutter pub add flutter_webrtc:^1.11.0
-
-      # Устанавливаем зависимости
       - name: 📦 Install dependencies
         run: flutter pub get
 
-      # Сборка APK
       - name: 🔨 Build release APK (unsigned)
         run: flutter build apk --release --no-tree-shake-icons
 
-      # Загрузка артефакта
       - name: 📁 Upload APK
         uses: actions/upload-artifact@v4
         with:
