@@ -1,62 +1,25 @@
-name: Build Android APK (unsigned)
+name: Build Flutter APK
 
-on:
+on: 
+  workflow_dispatch:  # Запуск вручную во вкладке Actions
   push:
-    branches: [ main, master ]
-  workflow_dispatch:
+    branches: [ main ]
 
 jobs:
-  build:
+  build-android:
     runs-on: ubuntu-latest
-
     steps:
-      - name: 📚 Checkout repository
-        uses: actions/checkout@v4
-
-      - name: 🔧 Setup Java
-        uses: actions/setup-java@v4
+      - uses: actions/checkout@v4
+      
+      - uses: subosito/flutter-action@v2
         with:
-          distribution: 'zulu'
-          java-version: '17'
-
-      - name: 🐦 Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.27.0'
           channel: 'stable'
-          cache: true
-
-      - name: 🧹 Clean and remove old Android
-        run: |
-          flutter clean
-          rm -rf android
-
-      - name: 🏗️ Create Android project
-        run: flutter create --platforms=android .
-
-      - name: 🔧 Set compileSdk to 36
-        run: |
-          sed -i 's/compileSdk = 35/compileSdk = 36/g' android/app/build.gradle
-          sed -i 's/compileSdkVersion 35/compileSdkVersion 36/g' android/app/build.gradle
-
-      - name: 📦 Get dependencies
-        run: flutter pub get
-
-      - name: 🩹 Hotfix flutter_webrtc compilation error
-        run: |
-          FILE="$HOME/.pub-cache/hosted/pub.dev/flutter_webrtc-1.4.1/android/src/main/java/com/cloudwebrtc/webrtc/SurfaceTextureRenderer.java"
-          if [ -f "$FILE" ]; then
-            sed -i '/new TextureRegistry.SurfaceProducer.Callback() {/,/};/d' "$FILE"
-            echo "✅ Patched"
-          fi
-
-      - name: 🔨 Build APK
-        run: flutter build apk --release --no-tree-shake-icons
-
-      - name: 📁 Upload APK
+          
+      - run: flutter pub get
+      - run: flutter build apk --release
+      
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: telegraph.apk
+          name: release-apk
           path: build/app/outputs/flutter-apk/app-release.apk
-          if-no-files-found: error
-          retention-days: 14
