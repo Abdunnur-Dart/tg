@@ -51,10 +51,9 @@ dependencies:
   cryptography: ^2.9.0
   tg: ^0.0.2
   flutter_webrtc:
-    git:
-      url: https://github.com/cloudwebrtc/flutter-webrtc.git
-      ref: master
-
+  git:
+    url: https://github.com/cloudwebrtc/flutter-webrtc.git
+    ref: master
 dev_dependencies:
   flutter_test:
     sdk: flutter
