@@ -1,27 +1,19 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
     
-    <!-- ========== РАЗРЕШЕНИЯ ДЛЯ ИНТЕРНЕТА И СЕТИ ========== -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-    
-    <!-- ========== РАЗРЕШЕНИЯ ДЛЯ КАМЕРЫ И МИКРОФОНА (WebRTC) ========== -->
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
-    
-    <!-- ========== РАЗРЕШЕНИЯ ДЛЯ УВЕДОМЛЕНИЙ (FCM) ========== -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
-    
-    <!-- ========== РАЗРЕШЕНИЯ ДЛЯ ФОНОВОЙ РАБОТЫ ========== -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CAMERA" />
     
-    <!-- ========== ФИЧИ ДЛЯ КАМЕРЫ (ОПЦИОНАЛЬНО) ========== -->
     <uses-feature android:name="android.hardware.camera" android:required="false" />
     <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
     <uses-feature android:name="android.hardware.microphone" android:required="false" />
@@ -33,15 +25,18 @@
         android:usesCleartextTraffic="true"
         android:requestLegacyExternalStorage="true"
         android:allowBackup="true"
-        android:theme="@style/LaunchTheme"
+        android:theme="@style/Theme.AppCompat.Light.NoActionBar" 
         android:supportsRtl="true">
         
-        <!-- Главная активность -->
+        <meta-data
+            android:name="flutterEmbedding"
+            android:value="2" />
+        
         <activity
             android:name=".MainActivity"
             android:exported="true"
             android:launchMode="singleTop"
-            android:theme="@style/LaunchTheme"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
             android:hardwareAccelerated="true"
             android:windowSoftInputMode="adjustResize">
@@ -51,7 +46,6 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
             
-            <!-- Deep linking для invite-ссылок -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
@@ -62,18 +56,6 @@
             </intent-filter>
         </activity>
         
-        <!-- Метаданные для Firebase -->
-        <meta-data
-            android:name="com.google.firebase.messaging.default_notification_channel_id"
-            android:value="telegraph_channel" />
-        <meta-data
-            android:name="com.google.firebase.messaging.default_notification_icon"
-            android:resource="@drawable/ic_notification" />
-        <meta-data
-            android:name="com.google.firebase.messaging.default_notification_color"
-            android:resource="@color/notification_color" />
-        
-        <!-- Сервис для FCM -->
         <service
             android:name="com.google.firebase.messaging.FirebaseMessagingService"
             android:exported="false">
@@ -82,15 +64,11 @@
             </intent-filter>
         </service>
         
-        <!-- Сервис для фоновых звонков (WebRTC) -->
         <service
             android:name="com.example.chat.CallForegroundService"
             android:enabled="true"
             android:exported="false"
             android:foregroundServiceType="microphone|camera" />
-        <meta-data
-    android:name="flutterEmbedding"
-    android:value="2" />
 
     </application>
 </manifest>
