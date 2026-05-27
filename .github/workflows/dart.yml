@@ -28,10 +28,13 @@ jobs:
           channel: 'stable'
           cache: true
 
+      - name: 🔧 Fix flutter_webrtc git branch (master → main) - MUST BE BEFORE flutter create
+        run: sed -i 's/ref: master/ref: main/g' pubspec.yaml
+
       - name: 🧹 Clean previous builds
         run: flutter clean
 
-      - name: 🧹 Remove old Android folder (v1 embedding)
+      - name: 🧹 Remove old Android folder
         run: rm -rf android
 
       - name: 🏗️ Recreate Android project (v2 embedding)
@@ -42,7 +45,7 @@ jobs:
           sed -i 's/compileSdk = 35/compileSdk = 36/g' android/app/build.gradle
           sed -i 's/compileSdkVersion 35/compileSdkVersion 36/g' android/app/build.gradle
 
-      - name: 📦 Install dependencies
+      - name: 📦 Install dependencies (again, after patching)
         run: flutter pub get
 
       - name: 🔨 Build release APK (unsigned)
