@@ -1,7 +1,7 @@
 name: Build Flutter APK
 
 on: 
-  workflow_dispatch:  # Запуск вручную во вкладке Actions
+  workflow_dispatch:
   push:
     branches: [ main ]
 
@@ -13,13 +13,37 @@ jobs:
       
       - uses: subosito/flutter-action@v2
         with:
+          flutter-version: '3.27.0'
           channel: 'stable'
+      
+      - name: Fix Android configuration
+        run: |
+          # Удаляем старую android папку
+          rm -rf android
           
+          # Создаём новую
+          flutter create --platforms=android .
+          
+          # Поднимаем compileSdk везде
+          find android -name "build.gradle" -exec sed -i 's/compileSdk = 35/compileSdk = 36/g' {} \;
+          find android -name "build.gradle" -exec sed -i 's/compileSdkVersion 35/compileSdkVersion 36/g' {} \;
+          find android -name "build.gradle" -exec sed -i 's/compileSdk = 31/compileSdk = 36/g' {} \;
+          find android -name "build.gradle" -exec sed -i 's/compileSdkVersion 31/compileSdkVersion 36/g' {} \;
+          
+          # Поднимаем minSdk до 24
+          find android -name "build.gradle" -exec sed -i 's/minSdk = .*/minSdk = 24/g' {} \;
+          find android -name "build.gradle" -exec sed -i 's/minSdkVersion .*/minSdkVersion 24/g' {} \;
+      
+      - name: Patch flutter_webrtc
+        run: |
+          # Удаляем проблемный файл (он не критичен)
+          find ~/.pub-cache -name "SurfaceTextureRenderer.java" -delete 2>/dev/null || true
+      
       - run: flutter pub get
       - run: flutter build apk --release
       
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: release-apk
+          name: telegraph.apk
           path: build/app/outputs/flutter-apk/app-release.apk
