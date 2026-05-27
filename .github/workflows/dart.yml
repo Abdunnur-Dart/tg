@@ -24,7 +24,7 @@ jobs:
       - name: 🐦 Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.24.0'   # Dart 3.5.0, совместим с permission_handler ^12.0.1
+          flutter-version: '3.27.0'   # Dart 3.6.0, совместим с обоими пакетами
           channel: 'stable'
           cache: true
 
