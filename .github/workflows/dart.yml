@@ -24,22 +24,40 @@ jobs:
       - name: 🐦 Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.27.0'   # Dart 3.6.0, совместим со всеми пакетами
+          flutter-version: '3.27.0'
           channel: 'stable'
           cache: true
 
-      - name: 🧹 Remove old Android folder (v1 embedding)
+      # Удаляем старую android-папку (v1 embedding)
+      - name: 🧹 Remove old Android folder
         run: rm -rf android
 
-      - name: 🏗️ Recreate Android project (v2 embedding)
+      # Пересоздаём Android проект (v2 embedding)
+      - name: 🏗️ Recreate Android project
         run: flutter create --platforms=android .
 
+      # Обновляем compileSdk до 36 (требуют camera_android и flutter_webrtc)
+      - name: 🔧 Patch build.gradle (compileSdk 36)
+        run: |
+          sed -i 's/compileSdk = 35/compileSdk = 36/g' android/app/build.gradle
+          sed -i 's/compileSdkVersion 35/compileSdkVersion 36/g' android/app/build.gradle
+
+      # Обновляем flutter_webrtc до совместимой версии (>=1.11.0)
+      - name: 📦 Update flutter_webrtc version
+        run: |
+          sed -i 's/flutter_webrtc: ^1.4.1/flutter_webrtc: ^1.12.0/g' pubspec.yaml
+          # Если строка не найдена – добавляем явно (на случай другого формата)
+          grep -q "flutter_webrtc:" pubspec.yaml || echo "  flutter_webrtc: ^1.12.0" >> pubspec.yaml
+
+      # Заново устанавливаем зависимости
       - name: 📦 Install dependencies
         run: flutter pub get
 
+      # Сборка APK
       - name: 🔨 Build release APK (unsigned)
         run: flutter build apk --release --no-tree-shake-icons
 
+      # Загрузка артефакта
       - name: 📁 Upload APK
         uses: actions/upload-artifact@v4
         with:
