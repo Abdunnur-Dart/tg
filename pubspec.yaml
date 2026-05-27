@@ -53,7 +53,7 @@ dependencies:
   flutter_webrtc:
   git:
     url: https://github.com/cloudwebrtc/flutter-webrtc.git
-    ref: master
+    ref: main
 dev_dependencies:
   flutter_test:
     sdk: flutter
