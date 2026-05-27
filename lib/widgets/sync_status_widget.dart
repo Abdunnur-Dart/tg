@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import '../services/sync_service.dart';
 
 class SyncStatusWidget extends StatelessWidget {
@@ -24,7 +23,7 @@ class SyncStatusWidget extends StatelessWidget {
               Icon(Icons.wifi_off, size: 14, color: Colors.white),
               SizedBox(width: 8),
               Text(
-                "Нет подключения. Сообщения сохранятся локально",
+                "Нет подключения!",
                 style: TextStyle(color: Colors.white, fontSize: 12),
               ),
             ],

@@ -34,7 +34,6 @@ dependencies:
   pointycastle: ^3.9.1
   secure_application: ^4.1.0
   intl: ^0.20.2
-  flutter_webrtc: ^1.4.1
   url_launcher: ^6.3.2
   camera: ^0.10.5+2
   image: ^4.8.0
@@ -51,6 +50,7 @@ dependencies:
   googleapis: ^12.0.0
   cryptography: ^2.9.0
   tg: ^0.0.2
+  flutter_webrtc: ^1.4.1
 
 dev_dependencies:
   flutter_test:
