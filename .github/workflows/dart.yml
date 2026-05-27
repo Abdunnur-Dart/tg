@@ -39,14 +39,12 @@ jobs:
           sed -i 's/compileSdk = 35/compileSdk = 36/g' android/app/build.gradle
           sed -i 's/compileSdkVersion 35/compileSdkVersion 36/g' android/app/build.gradle
 
-      - name: 📦 Force update flutter_webrtc to 1.10.0
+      - name: 📦 Fix flutter_webrtc version (use 1.10.0)
         run: |
-          # Удаляем любую строку с flutter_webrtc из pubspec.yaml (даже с отступами)
-          sed -i '/flutter_webrtc:/d' pubspec.yaml
-          # Добавляем правильную версию в конец dependencies
-          echo "  flutter_webrtc: 1.10.0" >> pubspec.yaml
-          # Переустанавливаем зависимости
-          flutter pub get
+          # Удаляем старую версию, если она есть
+          flutter pub remove flutter_webrtc || true
+          # Добавляем правильную версию
+          flutter pub add flutter_webrtc:1.10.0
 
       - name: 🔨 Build release APK (unsigned)
         run: flutter build apk --release --no-tree-shake-icons
