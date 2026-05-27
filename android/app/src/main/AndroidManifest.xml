@@ -88,6 +88,9 @@
             android:enabled="true"
             android:exported="false"
             android:foregroundServiceType="microphone|camera" />
-        
+        <meta-data
+    android:name="flutterEmbedding"
+    android:value="2" />
+
     </application>
 </manifest>
