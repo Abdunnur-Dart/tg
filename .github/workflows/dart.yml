@@ -3,8 +3,6 @@ name: Build Android APK (unsigned)
 on:
   push:
     branches: [ main, master ]
-  pull_request:
-    branches: [ main, master ]
   workflow_dispatch:
 
 jobs:
@@ -28,33 +26,37 @@ jobs:
           channel: 'stable'
           cache: true
 
-      - name: 🔧 Fix flutter_webrtc git branch (master → main) - MUST BE BEFORE flutter create
-        run: sed -i 's/ref: master/ref: main/g' pubspec.yaml
+      - name: 🧹 Clean and remove old Android
+        run: |
+          flutter clean
+          rm -rf android
 
-      - name: 🧹 Clean previous builds
-        run: flutter clean
-
-      - name: 🧹 Remove old Android folder
-        run: rm -rf android
-
-      - name: 🏗️ Recreate Android project (v2 embedding)
+      - name: 🏗️ Create Android project
         run: flutter create --platforms=android .
 
-      - name: 🔧 Patch build.gradle (compileSdk 36)
+      - name: 🔧 Set compileSdk to 36
         run: |
           sed -i 's/compileSdk = 35/compileSdk = 36/g' android/app/build.gradle
           sed -i 's/compileSdkVersion 35/compileSdkVersion 36/g' android/app/build.gradle
 
-      - name: 📦 Install dependencies (again, after patching)
+      - name: 📦 Get dependencies
         run: flutter pub get
 
-      - name: 🔨 Build release APK (unsigned)
+      - name: 🩹 Hotfix flutter_webrtc compilation error
+        run: |
+          FILE="$HOME/.pub-cache/hosted/pub.dev/flutter_webrtc-1.4.1/android/src/main/java/com/cloudwebrtc/webrtc/SurfaceTextureRenderer.java"
+          if [ -f "$FILE" ]; then
+            sed -i '/new TextureRegistry.SurfaceProducer.Callback() {/,/};/d' "$FILE"
+            echo "✅ Patched"
+          fi
+
+      - name: 🔨 Build APK
         run: flutter build apk --release --no-tree-shake-icons
 
       - name: 📁 Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: telegraph-unsigned.apk
+          name: telegraph.apk
           path: build/app/outputs/flutter-apk/app-release.apk
           if-no-files-found: error
           retention-days: 14
