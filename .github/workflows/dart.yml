@@ -28,23 +28,34 @@ jobs:
           channel: 'stable'
           cache: true
 
-      - name: 🧹 Remove old Android folder (v1 embedding)
+      - name: 🧹 Remove old Android folder
         run: rm -rf android
 
-      - name: 🏗️ Recreate Android project (v2 embedding)
+      - name: 🏗️ Recreate Android project
         run: flutter create --platforms=android .
 
-      - name: 🔧 Patch build.gradle (compileSdk 36)
+      - name: 🔧 Patch build.gradle (compileSdk 36, minSdk 24)
         run: |
           sed -i 's/compileSdk = 35/compileSdk = 36/g' android/app/build.gradle
           sed -i 's/compileSdkVersion 35/compileSdkVersion 36/g' android/app/build.gradle
+          sed -i 's/minSdk = .*/minSdk = 24/g' android/app/build.gradle
+          sed -i 's/minSdkVersion .*/minSdkVersion 24/g' android/app/build.gradle
 
-      - name: 📦 Fix flutter_webrtc version (use 1.10.0)
+      - name: 🩹 Patch flutter_webrtc compilation error (remove broken file)
         run: |
-          # Удаляем старую версию, если она есть
-          flutter pub remove flutter_webrtc || true
-          # Добавляем правильную версию
-          flutter pub add flutter_webrtc:1.10.0
+          # Находим путь к проблемному файлу
+          WEBCACHE_PATH="$HOME/.pub-cache/hosted/pub.dev/flutter_webrtc-1.4.1/android/src/main/java/com/cloudwebrtc/webrtc/SurfaceTextureRenderer.java"
+          if [ -f "$WEBCACHE_PATH" ]; then
+            # Удаляем строки 115-125 (содержащие проблемный Callback)
+            sed -i '115,125d' "$WEBCACHE_PATH"
+            echo "✅ Patched SurfaceTextureRenderer.java"
+          else
+            echo "⚠️ File not found, trying alternative path"
+            find ~/.pub-cache -name "SurfaceTextureRenderer.java" -exec sed -i '115,125d' {} \;
+          fi
+
+      - name: 📦 Install dependencies
+        run: flutter pub get
 
       - name: 🔨 Build release APK (unsigned)
         run: flutter build apk --release --no-tree-shake-icons
