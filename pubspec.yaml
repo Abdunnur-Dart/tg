@@ -36,7 +36,7 @@ dependencies:
   url_launcher: ^6.3.2
   camera: ^0.12.0+1
   image: ^4.8.0
-  app_links: ^7.1.1
+  app_links: ^6.0.0  # Вместо ^7.1.1
   webview_flutter: ^4.4.0
   sqflite_common: ^2.5.3 # конкретная версия без "каретки"
   permission_handler: ^12.0.1
