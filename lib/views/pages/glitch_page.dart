@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:secure_application/secure_application.dart'; // Добавь этот импорт
 import '../../viewmodels/app_config_viewmodel.dart';
 import 'chat_list_page.dart';
 import 'pin_lock_page.dart';
@@ -22,14 +21,9 @@ class _GlitchScreenState extends State<GlitchScreen> {
   }
 
   void _simulateError() async {
-    // 1. Небольшая задержка для эффекта "черного экрана"
     await Future.delayed(const Duration(seconds: 2));
 
-    // 2. ШАГ 3: АКТИВАЦИЯ ЗАЩИТЫ
-    // Включаем безопасный режим. Теперь при сворачивании будет черный экран.
-    if (mounted) {
-      SecureApplicationProvider.of(context, listen: false)?.secure();
-    }
+    // Удалить: SecureApplicationProvider.of(context, listen: false)?.secure();
 
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('is_first_run_v31', false);
@@ -37,13 +31,11 @@ class _GlitchScreenState extends State<GlitchScreen> {
     if (!mounted) return;
     setState(() => _isBlack = false);
 
-    // 3. Задержка, пока висит надпись "Initializing Secure Environment"
     await Future.delayed(const Duration(seconds: 1));
 
     if (!mounted) return;
     final conf = Provider.of<AppConfigViewModel>(context, listen: false);
 
-    // 4. Переход в приложение
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(

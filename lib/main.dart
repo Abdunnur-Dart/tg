@@ -1,8 +1,11 @@
+import 'dart:io';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:secure_application/secure_application.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'firebase_options.dart';
@@ -15,6 +18,16 @@ import 'views/pages/auth_page.dart';
 import 'views/pages/pin_lock_page.dart';
 import 'views/pages/glitch_page.dart';
 import 'services/sync_service.dart';
+
+void setupFirebaseEmulatorsForLinux() {
+  if (Platform.isLinux) {
+    print('🐧 Обнаружена Linux платформа — подключаюсь к эмуляторам Firebase');
+    FirebaseAuth.instance.useAuthEmulator('localhost', 9099);
+    FirebaseFirestore.instance.useFirestoreEmulator('localhost', 8080);
+    print('✅ Firebase теперь работает через локальные эмуляторы на Linux');
+  }
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
@@ -23,13 +36,10 @@ void main() async {
   );
   
   await ConfigService.initialize();
-    await ConfigService.initialize();
   await NotificationService.initialize();
-    SyncService().initialize();
-  // Инициализация уведомлений
-  await NotificationService.initialize();
+  SyncService().initialize();
 
-   final token = await FirebaseMessaging.instance.getToken();
+  final token = await FirebaseMessaging.instance.getToken();
   print('═══════════════════════════════════════════════════════════');
   print('🔑 ВАШ FCM ТОКЕН:');
   print(token);
@@ -42,41 +52,39 @@ class TelegraphApp extends StatelessWidget {
   const TelegraphApp({super.key});
 
   @override
-Widget build(BuildContext context) {
-  return MultiProvider(
-    providers: [
-      // Провайдер для AppConfigViewModel должен быть здесь!
-      ChangeNotifierProvider(
-        create: (_) => AppConfigViewModel(),
+  Widget build(BuildContext context) {
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (_) => AppConfigViewModel(),
+        ),
+      ],
+      child: Consumer<AppConfigViewModel>(
+        builder: (context, conf, child) {
+          return MaterialApp(
+            title: 'Telegraph',
+            debugShowCheckedModeBanner: false,
+            themeMode: conf.themeMode,
+            theme: ThemeData(
+              useMaterial3: true,
+              colorSchemeSeed: conf.accentColor,
+              brightness: Brightness.light,
+            ),
+            darkTheme: ThemeData(
+              useMaterial3: true,
+              colorSchemeSeed: conf.accentColor,
+              brightness: Brightness.dark,
+              scaffoldBackgroundColor: Colors.black,
+              appBarTheme: const AppBarTheme(backgroundColor: Colors.black),
+            ),
+            home: const AppInitializer(),
+          );
+        },
       ),
-    ],
-    child: Consumer<AppConfigViewModel>(
-      builder: (context, conf, child) {
-        return MaterialApp(
-          title: 'Telegraph',
-          debugShowCheckedModeBanner: false,
-          themeMode: conf.themeMode,
-          theme: ThemeData(
-            useMaterial3: true,
-            colorSchemeSeed: conf.accentColor,
-            brightness: Brightness.light,
-          ),
-          darkTheme: ThemeData(
-            useMaterial3: true,
-            colorSchemeSeed: conf.accentColor,
-            brightness: Brightness.dark,
-            scaffoldBackgroundColor: Colors.black,
-            appBarTheme: const AppBarTheme(backgroundColor: Colors.black),
-          ),
-          home: const AppInitializer(),
-        );
-      },
-    ),
-  );
-}
+    );
+  }
 }
 
-// Отдельный виджет для инициализации и проверки состояния
 class AppInitializer extends StatefulWidget {
   const AppInitializer({super.key});
 
@@ -111,36 +119,32 @@ class _AppInitializerState extends State<AppInitializer> {
       );
     }
 
-
-    // 1. сначало возраст
     if (_isAgeVerified == false) {
       return const AgeVerificationPage();
     }
-    // 2. потом согласие
+    
     if (_hasConsent == false) {
       return const ConsentPage();
     }
 
-    // 3. Дальше как обычно
-    return SecureApplication(
-      child: Builder(builder: (context) {
-        return SecureGate(
-          lockedBuilder: (context, controller) => const PinLockScreen(),
-          child: Consumer<AppConfigViewModel>(
-            builder: (context, auth, _) {
-              if (auth.userId.isEmpty) {
-                return const AuthPage();
-              }
-              
-              if (!auth.isEmailVerified) {
-                return _buildVerificationUI(context, auth);
-              }
-              
-              return const GlitchScreen();
-            },
-          ),
-        );
-      }),
+    // Без SecureApplication - просто проверяем PIN и авторизацию
+    return Consumer<AppConfigViewModel>(
+      builder: (context, auth, _) {
+        if (auth.userId.isEmpty) {
+          return const AuthPage();
+        }
+        
+        // Если есть PIN-код и он не введён - показываем PIN Lock
+        if (auth.pinCode != null && auth.pinCode!.isNotEmpty) {
+          return const PinLockScreen();
+        }
+        
+        if (!auth.isEmailVerified) {
+          return _buildVerificationUI(context, auth);
+        }
+        
+        return const GlitchScreen();
+      },
     );
   }
 

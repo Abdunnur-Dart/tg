@@ -28,11 +28,8 @@ class DefaultFirebaseOptions {
         return macos;
       case TargetPlatform.windows:
         return windows;
-      case TargetPlatform.linux:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for linux - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+case TargetPlatform.linux:
+  return linux;  // Вместо throw UnsupportedError
       default:
         throw UnsupportedError(
           'DefaultFirebaseOptions are not supported for this platform.',
@@ -85,4 +82,13 @@ class DefaultFirebaseOptions {
     storageBucket: 'telegraph-cbe5c.firebasestorage.app',
     measurementId: 'G-G1VEYB7TT7',
   );
+  // Добавь это в конец файла, после windows:
+static const FirebaseOptions linux = FirebaseOptions(
+  apiKey: 'AIzaSyCnrq6lPp_q8EcMhqpVvzM8LaTHbipgcnk',  // Берем из web
+  appId: '1:424132177009:web:e085773517f85cc7ad7fd0',  // Web app ID
+  messagingSenderId: '424132177009',
+  projectId: 'telegraph-cbe5c',
+  authDomain: 'telegraph-cbe5c.firebaseapp.com',
+  storageBucket: 'telegraph-cbe5c.firebasestorage.app',
+);
 }

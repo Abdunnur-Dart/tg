@@ -5,21 +5,19 @@ plugins {
 }
 
 android {
-    namespace = "com.example.tg"
-    compileSdk = flutter.compileSdkVersion
+    namespace = "com.example.chat"
+    compileSdk = 36  // или хотя бы 35, но лучше 36
     ndkVersion = flutter.ndkVersion
 
-
-   compileOptions {
+    compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
-        // ДОБАВЬТЕ ЭТУ СТРОКУ:
         isCoreLibraryDesugaringEnabled = true
     }
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.tg"
+        applicationId = "com.example.chat"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
@@ -43,9 +41,10 @@ kotlin {
     }
 }
 
+dependencies {
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
+}
+
 flutter {
     source = "../.."
-}
-dependencies {
-    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
 }
