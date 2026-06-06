@@ -1,3 +1,14 @@
 git add .
 git commit -m "update to v2 embedding and fix build config"
 git push
+
+# Перед любыми изменениями
+git pull origin main
+
+# Затем работаете и коммитите
+git add .
+git commit -m "ваши изменения"
+
+# Затем снова pull перед push
+git pull origin main
+git push origin main
