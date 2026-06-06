@@ -15,7 +15,7 @@ dependencies:
   # --- Firebase ---
   firebase_core: ^4.10.0
   firebase_auth: ^6.5.2
-  cloud_firestore: ^6.5.0
+  cloud_firestore: ^5.6.0  # Вместо ^6.5.0
  
 
   # --- State Management ---
