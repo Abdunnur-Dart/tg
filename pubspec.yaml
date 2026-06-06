@@ -49,7 +49,7 @@ dependencies:
   cryptography: ^2.9.0
   tg: ^0.0.2
   flutter_webrtc: ^1.4.1
-  firebase_remote_config: ^6.3.0  # Вместо ^6.5.2
+  firebase_remote_config: ^5.5.0  # Вместо ^6.3.0
 
 
 dev_dependencies:
