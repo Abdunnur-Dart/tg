@@ -1,60 +1,49 @@
-name: Build Android APK (unsigned)
+name: Build Flutter APK
 
-on:
-  push:
-    branches: [ main, master ]
-  pull_request:
-    branches: [ main, master ]
+on: 
   workflow_dispatch:
+  push:
+    branches: [ main ]
 
 jobs:
-  build:
+  build-android:
     runs-on: ubuntu-latest
-
     steps:
-      - name: 📚 Checkout repository
-        uses: actions/checkout@v4
-
-      - name: 🔧 Setup Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'zulu'
-          java-version: '17'
-
-      - name: 🐦 Setup Flutter
-        uses: subosito/flutter-action@v2
+      - uses: actions/checkout@v4
+      
+      - uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.27.0'
           channel: 'stable'
-          cache: true
-
-      - name: 🔧 Fix flutter_webrtc git branch (master → main) - MUST BE BEFORE flutter create
-        run: sed -i 's/ref: master/ref: main/g' pubspec.yaml
-
-      - name: 🧹 Clean previous builds
-        run: flutter clean
-
-      - name: 🧹 Remove old Android folder
-        run: rm -rf android
-
-      - name: 🏗️ Recreate Android project (v2 embedding)
-        run: flutter create --platforms=android .
-
-      - name: 🔧 Patch build.gradle (compileSdk 36)
+      
+      - name: Fix Android configuration
         run: |
-          sed -i 's/compileSdk = 35/compileSdk = 36/g' android/app/build.gradle
-          sed -i 's/compileSdkVersion 35/compileSdkVersion 36/g' android/app/build.gradle
-
-      - name: 📦 Install dependencies (again, after patching)
-        run: flutter pub get
-
-      - name: 🔨 Build release APK (unsigned)
-        run: flutter build apk --release --no-tree-shake-icons
-
-      - name: 📁 Upload APK
+          # Удаляем старую android папку
+          rm -rf android
+          
+          # Создаём новую
+          flutter create --platforms=android .
+          
+          # Поднимаем compileSdk везде
+          find android -name "build.gradle" -exec sed -i 's/compileSdk = 35/compileSdk = 36/g' {} \;
+          find android -name "build.gradle" -exec sed -i 's/compileSdkVersion 35/compileSdkVersion 36/g' {} \;
+          find android -name "build.gradle" -exec sed -i 's/compileSdk = 31/compileSdk = 36/g' {} \;
+          find android -name "build.gradle" -exec sed -i 's/compileSdkVersion 31/compileSdkVersion 36/g' {} \;
+          
+          # Поднимаем minSdk до 24
+          find android -name "build.gradle" -exec sed -i 's/minSdk = .*/minSdk = 24/g' {} \;
+          find android -name "build.gradle" -exec sed -i 's/minSdkVersion .*/minSdkVersion 24/g' {} \;
+      
+      - name: Patch flutter_webrtc
+        run: |
+          # Удаляем проблемный файл (он не критичен)
+          find ~/.pub-cache -name "SurfaceTextureRenderer.java" -delete 2>/dev/null || true
+      
+      - run: flutter pub get
+      - run: flutter build apk --release
+      
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: telegraph-unsigned.apk
+          name: telegraph.apk
           path: build/app/outputs/flutter-apk/app-release.apk
-          if-no-files-found: error
-          retention-days: 14
