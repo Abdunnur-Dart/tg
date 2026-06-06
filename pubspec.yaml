@@ -13,7 +13,7 @@ dependencies:
   cupertino_icons: ^1.0.8
 
   # --- Firebase ---
-  firebase_core: ^4.10.0
+  firebase_core: ^3.12.0  # Вместо ^4.10.0
   firebase_auth: ^5.4.0  # Вместо ^6.5.2
   cloud_firestore: ^5.6.0  # Вместо ^6.5.0
  
