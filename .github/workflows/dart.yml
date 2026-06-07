@@ -1,78 +1,42 @@
-name: Build IPA for TrollStore
+name: Build IPA
 
 on:
-  push:
-    tags:
-      - 'v*'
   workflow_dispatch:
 
 jobs:
-  build-ios-ipa:
+  build:
     runs-on: macos-latest
     
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Select Xcode version
-        run: |
-          sudo xcode-select -switch /Applications/Xcode_15.4.app
-          echo "Selected Xcode: $(xcodebuild -version)"
-
+      - uses: actions/checkout@v4
+      
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.24.5'
-          channel: 'stable'
-
-      - name: Clean project
-        run: flutter clean
-
+          flutter-version: '3.19.6'
+          
       - name: Install dependencies
         run: flutter pub get
-
-      - name: Enable legacy build for iOS
+        
+      - name: Fix pin_lock_page.dart
         run: |
-          # Удаляем SceneDelegate если есть (для совместимости)
-          if [ -f ios/Runner/SceneDelegate.swift ]; then
-            rm ios/Runner/SceneDelegate.swift
-            echo "✅ Removed SceneDelegate.swift"
-          fi
+          sed -i '' 's/withValues(alpha: 0.5)/withOpacity(0.5)/g' lib/views/pages/pin_lock_page.dart
           
-          # Обновляем AppDelegate
-          cat > ios/Runner/AppDelegate.swift << 'EOF'
-import UIKit
-import Flutter
-
-@UIApplicationMain
-@objc class AppDelegate: FlutterAppDelegate {
-  override func application(
-    _ application: UIApplication,
-    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
-  ) -> Bool {
-    GeneratedPluginRegistrant.register(with: self)
-    return super.application(application, didFinishLaunchingWithOptions: launchOptions)
-  }
-}
-EOF
+      - name: Remove SceneDelegate
+        run: |
+          rm -f ios/Runner/SceneDelegate.swift
           
-          echo "✅ AppDelegate.swift updated"
-
       - name: Build iOS
         run: flutter build ios --release --no-codesign
-
-      - name: Create IPA payload structure
+        
+      - name: Create IPA
         run: |
-          mkdir -p build/ios/ipa/Payload
-          cp -R build/ios/iphoneos/Runner.app build/ios/ipa/Payload/
-
-      - name: Create IPA file
-        run: |
-          cd build/ios/ipa
-          zip -r Telegraph_${{ github.ref_name }}.ipa Payload/
-
-      - name: Upload IPA artifact
+          mkdir -p Payload
+          cp -R build/ios/iphoneos/Runner.app Payload/
+          zip -r Telegraph.ipa Payload/
+          
+      - name: Upload IPA
         uses: actions/upload-artifact@v4
         with:
-          name: Telegraph-${{ github.ref_name }}.ipa
-          path: build/ios/ipa/Telegraph_${{ github.ref_name }}.ipa
+          name: Telegraph.ipa
+          path: Telegraph.ipa
