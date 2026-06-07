@@ -1,9 +1,7 @@
-name: Build IPA for TrollStore
+name: Build IPA for TrollStore (Alternative)
 
 on:
   workflow_dispatch:
-  push:
-    branches: [ main ]
 
 jobs:
   build:
@@ -20,11 +18,30 @@ jobs:
     - name: Install dependencies
       run: flutter pub get
 
-    - name: Build unsigned IPA
+    - name: Setup Firebase config
       run: |
-        flutter build ios --release --no-codesign
+        echo '${{ secrets.GOOGLE_SERVICES_PLIST }}' | base64 --decode > ios/Runner/GoogleService-Info.plist
+
+    - name: Build with xcodebuild (no signing)
+      run: |
+        cd ios
+        xcodebuild -workspace Runner.xcworkspace \
+          -scheme Runner \
+          -configuration Release \
+          -sdk iphoneos \
+          -destination 'generic/platform=iOS' \
+          -archivePath build/Runner.xcarchive \
+          CODE_SIGN_IDENTITY="" \
+          CODE_SIGNING_REQUIRED=NO \
+          CODE_SIGNING_ALLOWED=NO \
+          DEVELOPMENT_TEAM="" \
+          archive
+        cd ..
+
+    - name: Create IPA
+      run: |
         mkdir -p Payload
-        cp -r build/ios/Release-iphoneos/Runner.app Payload/
+        cp -r ios/build/Runner.xcarchive/Products/Applications/Runner.app Payload/
         zip -r app.ipa Payload
         rm -rf Payload
 
