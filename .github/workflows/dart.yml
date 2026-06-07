@@ -13,44 +13,14 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.24.5'
-          channel: 'stable'
+          flutter-version: '3.22.6'
           
       - name: Install dependencies
         run: flutter pub get
         
-      - name: Fix pin_lock_page.dart
+      - name: Fix code
         run: |
-          sed -i '' 's/withValues(alpha: /withOpacity(/g' lib/views/pages/pin_lock_page.dart
-          
-      - name: Fix iOS project configuration
-        run: |
-          # Удаляем SceneDelegate
-          rm -f ios/Runner/SceneDelegate.swift
-          
-          # Обновляем AppDelegate.swift
-          cat > ios/Runner/AppDelegate.swift << 'EOF'
-import UIKit
-import Flutter
-
-@UIApplicationMain
-@objc class AppDelegate: FlutterAppDelegate {
-  override func application(
-    _ application: UIApplication,
-    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
-  ) -> Bool {
-    GeneratedPluginRegistrant.register(with: self)
-    return super.application(application, didFinishLaunchingWithOptions: launchOptions)
-  }
-}
-EOF
-          
-          # Удаляем SceneDelegate из проекта Xcode (если есть)
-          if [ -f ios/Runner.xcodeproj/project.pbxproj ]; then
-            sed -i '' '/SceneDelegate.swift/d' ios/Runner.xcodeproj/project.pbxproj
-          fi
-          
-          echo "✅ iOS project fixed"
+          find . -name "*.dart" -exec sed -i '' 's/withValues(alpha: /withOpacity(/g' {} \; 2>/dev/null || true
           
       - name: Build iOS
         run: flutter build ios --release --no-codesign
