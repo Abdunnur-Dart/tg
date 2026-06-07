@@ -13,14 +13,15 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.19.6'
+          flutter-version: '3.24.5'  # ← ИЗМЕНЕНО (было 3.19.6)
+          channel: 'stable'
           
       - name: Install dependencies
         run: flutter pub get
         
       - name: Fix pin_lock_page.dart
         run: |
-          sed -i '' 's/withValues(alpha: 0.5)/withOpacity(0.5)/g' lib/views/pages/pin_lock_page.dart
+          sed -i '' 's/withValues(alpha: /withOpacity(/g' lib/views/pages/pin_lock_page.dart
           
       - name: Remove SceneDelegate
         run: |
