@@ -3,8 +3,8 @@ name: Build IPA for TrollStore
 on:
   push:
     tags:
-      - 'v*'  # Запуск при пуше тега типа v1.0.0
-  workflow_dispatch:  # Ручной запуск из интерфейса GitHub
+      - 'v*'
+  workflow_dispatch:
 
 jobs:
   build-ios-ipa:
@@ -14,16 +14,51 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Select Xcode version
+        run: |
+          sudo xcode-select -switch /Applications/Xcode_15.4.app
+          echo "Selected Xcode: $(xcodebuild -version)"
+
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.24.x'
+          flutter-version: '3.24.5'
           channel: 'stable'
+
+      - name: Clean project
+        run: flutter clean
 
       - name: Install dependencies
         run: flutter pub get
 
       - name: Enable legacy build for iOS
+        run: |
+          # Удаляем SceneDelegate если есть (для совместимости)
+          if [ -f ios/Runner/SceneDelegate.swift ]; then
+            rm ios/Runner/SceneDelegate.swift
+            echo "✅ Removed SceneDelegate.swift"
+          fi
+          
+          # Обновляем AppDelegate
+          cat > ios/Runner/AppDelegate.swift << 'EOF'
+import UIKit
+import Flutter
+
+@UIApplicationMain
+@objc class AppDelegate: FlutterAppDelegate {
+  override func application(
+    _ application: UIApplication,
+    didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
+  ) -> Bool {
+    GeneratedPluginRegistrant.register(with: self)
+    return super.application(application, didFinishLaunchingWithOptions: launchOptions)
+  }
+}
+EOF
+          
+          echo "✅ AppDelegate.swift updated"
+
+      - name: Build iOS
         run: flutter build ios --release --no-codesign
 
       - name: Create IPA payload structure
