@@ -192,7 +192,7 @@ class _PinLockScreenState extends State<PinLockScreen> {
                         color: isFilled ? Colors.blueAccent : Colors.white10,
                         border: Border.all(color: isFilled ? Colors.blueAccent : Colors.white24),
                         boxShadow: isFilled ? [
-                          BoxShadow(color: Colors.blueAccent.withValues(alpha: 0.5), blurRadius: 10)
+                          BoxShadow(color: Colors.blueAccent.withOpacity(0.5), blurRadius: 10)
                         ] : [],
                       ),
                     );
